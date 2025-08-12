@@ -2,9 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+let cachedApp;
+
+async function createApp() {
+  if (cachedApp) {
+    return cachedApp;
+  }
+
+  const expressApp = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || '*',
@@ -13,6 +22,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
+  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Pomodoro API')
     .setDescription('API REST para aplicação Pomodoro com NestJS, Prisma e Supabase')
@@ -32,11 +42,6 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
-    .addServer(process.env.NODE_ENV === 'production'
-      ? 'https://nestjs-supabase-pomodoro.vercel.app'
-      : 'http://localhost:3000',
-      process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
-    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -47,12 +52,28 @@ async function bootstrap() {
     customSiteTitle: 'Pomodoro API - Documentation'
   });
 
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-
-  console.log(`🚀 Application is running on: ${await app.getUrl()}`);
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`📚 Swagger docs available at: ${await app.getUrl()}/docs`);
-  }
+  await app.init();
+  cachedApp = expressApp;
+  return cachedApp;
 }
-bootstrap();
+
+// For Vercel serverless
+export default async (req, res) => {
+  const app = await createApp();
+  return app(req, res);
+};
+
+// For local development
+async function bootstrap() {
+  const app = await createApp();
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`🚀 Application is running on: http://localhost:${port}`);
+    console.log(`📚 Swagger docs available at: http://localhost:${port}/docs`);
+  });
+}
+
+// Only run bootstrap if not in serverless environment
+if (require.main === module) {
+  bootstrap();
+}
