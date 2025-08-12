@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  surname   String
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tasks    Task[]
+  profiles Profile[]
+
+  @@map("users")
+}
+
+model Task {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  taskStored Json     @default("[]") @map("task_stored")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  lastProfile   Int      @default(1) @map("last_profile")
+  profileStored Json     @default("[{\"id\": 1, \"name\": \"Default\", \"focusTime\": 25, \"break\": 5, \"longBreak\": 15}]") @map("profile_stored")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
