@@ -42,67 +42,94 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
-  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Listar todos os usuários' })
   @ApiResponse({
     status: 200,
     description: 'Lista de usuários retornada com sucesso',
     schema: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'number', example: 1 },
-          name: { type: 'string', example: 'Dean' },
-          surname: { type: 'string', example: 'de Meneses' },
-          username: { type: 'string', example: 'DeanVini' },
-          email: { type: 'string', example: 'dean@example.com' },
-          createdAt: { type: 'string', example: '2025-08-11T21:00:00.000Z' },
-          updatedAt: { type: 'string', example: '2025-08-11T21:00:00.000Z' }
+      example: [
+        {
+          id: 1,
+          name: 'Dean',
+          surname: 'de Meneses',
+          username: 'DeanVini',
+          email: 'dean@example.com',
+          createdAt: '2025-08-11T21:00:00.000Z',
+          updatedAt: '2025-08-11T21:00:00.000Z'
         }
-      }
+      ]
     }
   })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
   findAll() {
     return this.usersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Buscar usuário por ID' })
-  @ApiParam({ name: 'id', description: 'ID do usuário', example: 1 })
-  @ApiResponse({ status: 200, description: 'Usuário encontrado' })
+  @ApiParam({ name: 'id', description: 'ID do usuário', type: 'number' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário encontrado com sucesso',
+    schema: {
+      example: {
+        id: 1,
+        name: 'Dean',
+        surname: 'de Meneses',
+        username: 'DeanVini',
+        email: 'dean@example.com',
+        createdAt: '2025-08-11T21:00:00.000Z',
+        updatedAt: '2025-08-11T21:00:00.000Z'
+      }
+    }
+  })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualizar usuário' })
-  @ApiParam({ name: 'id', description: 'ID do usuário', example: 1 })
+  @ApiParam({ name: 'id', description: 'ID do usuário', type: 'number' })
   @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário atualizado com sucesso',
+    schema: {
+      example: {
+        id: 1,
+        name: 'Dean Updated',
+        surname: 'de Meneses',
+        username: 'DeanVini',
+        email: 'dean@example.com',
+        createdAt: '2025-08-11T21:00:00.000Z',
+        updatedAt: '2025-08-11T21:00:00.000Z'
+      }
+    }
+  })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Deletar usuário' })
-  @ApiParam({ name: 'id', description: 'ID do usuário', example: 1 })
+  @ApiParam({ name: 'id', description: 'ID do usuário', type: 'number' })
   @ApiResponse({ status: 200, description: 'Usuário deletado com sucesso' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }

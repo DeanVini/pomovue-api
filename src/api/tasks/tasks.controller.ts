@@ -16,26 +16,25 @@ import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 @ApiTags('tasks')
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth('JWT-auth')
+@ApiBearerAuth()
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Criar container de tarefas para o usuário' })
+  @ApiOperation({ summary: 'Criar nova lista de tarefas' })
   @ApiBody({ type: CreateTaskContainerDto })
   @ApiResponse({
     status: 201,
-    description: 'Container de tarefas criado com sucesso',
+    description: 'Lista de tarefas criada com sucesso',
     schema: {
       example: {
         id: 1,
         user_id: 1,
         taskStored: [
           {
-            description: 'Desenvolver o PomodoroVUE',
+            description: 'Estudar NestJS',
             finished: false,
-            show: true,
-            id: 1
+            show: true
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
@@ -43,32 +42,26 @@ export class TasksController {
       }
     }
   })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   create(@Request() req, @Body() createTaskContainerDto: CreateTaskContainerDto) {
-    return this.tasksService.create(req.user.userId, createTaskContainerDto);
+    return this.tasksService.create(req.user.id, createTaskContainerDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Buscar tarefas do usuário logado' })
+  @ApiOperation({ summary: 'Buscar tarefas do usuário' })
   @ApiResponse({
     status: 200,
-    description: 'Tarefas do usuário retornadas com sucesso',
+    description: 'Tarefas encontradas com sucesso',
     schema: {
       example: {
         id: 1,
         user_id: 1,
         taskStored: [
           {
-            description: 'Desenvolver o PomodoroVUE',
+            description: 'Estudar NestJS',
             finished: false,
-            show: true,
-            id: 1
-          },
-          {
-            description: 'Fazer um Backend',
-            finished: true,
-            show: true,
-            id: 2
+            show: true
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
@@ -76,14 +69,14 @@ export class TasksController {
       }
     }
   })
-  @ApiResponse({ status: 404, description: 'Nenhuma tarefa encontrada para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
-  findMy(@Request() req) {
-    return this.tasksService.findByUserId(req.user.userId);
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Tarefas não encontradas' })
+  findByUser(@Request() req) {
+    return this.tasksService.findByUserId(req.user.id);
   }
 
   @Patch()
-  @ApiOperation({ summary: 'Atualizar tarefas do usuário logado' })
+  @ApiOperation({ summary: 'Atualizar tarefas do usuário' })
   @ApiBody({ type: UpdateTaskContainerDto })
   @ApiResponse({
     status: 200,
@@ -94,29 +87,29 @@ export class TasksController {
         user_id: 1,
         taskStored: [
           {
-            description: 'Desenvolver o PomodoroVUE - Atualizado',
+            description: 'Estudar NestJS - Concluído',
             finished: true,
-            show: true,
-            id: 1
+            show: true
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
-        updated_at: '2025-08-11T21:30:00.000Z'
+        updated_at: '2025-08-11T21:00:00.000Z'
       }
     }
   })
-  @ApiResponse({ status: 404, description: 'Tarefas não encontradas para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Tarefas não encontradas' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   update(@Request() req, @Body() updateTaskContainerDto: UpdateTaskContainerDto) {
-    return this.tasksService.upsert(req.user.userId, updateTaskContainerDto);
+    return this.tasksService.upsert(req.user.id, updateTaskContainerDto);
   }
 
   @Delete()
-  @ApiOperation({ summary: 'Deletar todas as tarefas do usuário logado' })
+  @ApiOperation({ summary: 'Deletar todas as tarefas do usuário' })
   @ApiResponse({ status: 200, description: 'Tarefas deletadas com sucesso' })
-  @ApiResponse({ status: 404, description: 'Tarefas não encontradas para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Tarefas não encontradas' })
   remove(@Request() req) {
-    return this.tasksService.remove(req.user.userId);
+    return this.tasksService.remove(req.user.id);
   }
 }

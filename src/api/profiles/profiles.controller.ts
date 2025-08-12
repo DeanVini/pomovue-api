@@ -16,28 +16,28 @@ import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 @ApiTags('profiles')
 @Controller('profiles')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth('JWT-auth')
+@ApiBearerAuth()
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Criar container de perfis Pomodoro para o usuário' })
+  @ApiOperation({ summary: 'Criar novo perfil de configuração' })
   @ApiBody({ type: CreateProfileContainerDto })
   @ApiResponse({
     status: 201,
-    description: 'Container de perfis criado com sucesso',
+    description: 'Perfil criado com sucesso',
     schema: {
       example: {
         id: 1,
         user_id: 1,
-        lastProfile: 1,
+        last_profile: 1,
         profileStored: [
           {
+            id: 1,
             name: 'Default',
-            focusTime: 25,
             break: 5,
-            longBreak: 15,
-            id: 1
+            focusTime: 25,
+            longBreak: 15
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
@@ -45,35 +45,29 @@ export class ProfilesController {
       }
     }
   })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   create(@Request() req, @Body() createProfileContainerDto: CreateProfileContainerDto) {
-    return this.profilesService.create(req.user.userId, createProfileContainerDto);
+    return this.profilesService.create(req.user.id, createProfileContainerDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Buscar perfis Pomodoro do usuário logado' })
+  @ApiOperation({ summary: 'Buscar perfis do usuário' })
   @ApiResponse({
     status: 200,
-    description: 'Perfis do usuário retornados com sucesso',
+    description: 'Perfis encontrados com sucesso',
     schema: {
       example: {
         id: 1,
         user_id: 1,
-        lastProfile: 2,
+        last_profile: 1,
         profileStored: [
           {
+            id: 1,
             name: 'Default',
-            focusTime: 25,
             break: 5,
-            longBreak: 15,
-            id: 1
-          },
-          {
-            name: 'Trabalho Intenso',
-            focusTime: 50,
-            break: 10,
-            longBreak: 30,
-            id: 2
+            focusTime: 25,
+            longBreak: 15
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
@@ -81,14 +75,14 @@ export class ProfilesController {
       }
     }
   })
-  @ApiResponse({ status: 404, description: 'Nenhum perfil encontrado para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
-  findMy(@Request() req) {
-    return this.profilesService.findByUserId(req.user.userId);
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Perfis não encontrados' })
+  findByUser(@Request() req) {
+    return this.profilesService.findByUserId(req.user.id);
   }
 
   @Patch()
-  @ApiOperation({ summary: 'Atualizar perfis Pomodoro do usuário logado' })
+  @ApiOperation({ summary: 'Atualizar perfis do usuário' })
   @ApiBody({ type: UpdateProfileContainerDto })
   @ApiResponse({
     status: 200,
@@ -97,33 +91,41 @@ export class ProfilesController {
       example: {
         id: 1,
         user_id: 1,
-        lastProfile: 1,
+        last_profile: 2,
         profileStored: [
           {
-            name: 'Default Personalizado',
-            focusTime: 30,
-            break: 7,
-            longBreak: 20,
-            id: 1
+            id: 1,
+            name: 'Default',
+            break: 5,
+            focusTime: 25,
+            longBreak: 15
+          },
+          {
+            id: 2,
+            name: 'Work Mode',
+            break: 10,
+            focusTime: 50,
+            longBreak: 30
           }
         ],
         created_at: '2025-08-11T21:00:00.000Z',
-        updated_at: '2025-08-11T21:30:00.000Z'
+        updated_at: '2025-08-11T21:00:00.000Z'
       }
     }
   })
-  @ApiResponse({ status: 404, description: 'Perfis não encontrados para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Perfis não encontrados' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos' })
   update(@Request() req, @Body() updateProfileContainerDto: UpdateProfileContainerDto) {
-    return this.profilesService.upsert(req.user.userId, updateProfileContainerDto);
+    return this.profilesService.upsert(req.user.id, updateProfileContainerDto);
   }
 
   @Delete()
-  @ApiOperation({ summary: 'Deletar todos os perfis Pomodoro do usuário logado' })
+  @ApiOperation({ summary: 'Deletar todos os perfis do usuário' })
   @ApiResponse({ status: 200, description: 'Perfis deletados com sucesso' })
-  @ApiResponse({ status: 404, description: 'Perfis não encontrados para o usuário' })
-  @ApiResponse({ status: 401, description: 'Token não fornecido ou inválido' })
+  @ApiResponse({ status: 401, description: 'Token de acesso inválido ou ausente' })
+  @ApiResponse({ status: 404, description: 'Perfis não encontrados' })
   remove(@Request() req) {
-    return this.profilesService.remove(req.user.userId);
+    return this.profilesService.remove(req.user.id);
   }
 }
