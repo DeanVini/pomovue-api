@@ -9,9 +9,9 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import { TasksService } from './tasks.service';
-import { CreateTaskContainerDto, UpdateTaskContainerDto } from './dto/task.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TasksService } from '../../application/tasks/tasks.service';
+import { CreateTaskContainerDto, UpdateTaskContainerDto } from '../../application/tasks/task.dto';
+import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 
 @ApiTags('tasks')
 @Controller('tasks')

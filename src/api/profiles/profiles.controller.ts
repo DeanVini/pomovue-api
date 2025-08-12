@@ -9,9 +9,9 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import { ProfilesService } from './profiles.service';
-import { CreateProfileContainerDto, UpdateProfileContainerDto } from './dto/profile.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ProfilesService } from '../../application/profiles/profiles.service';
+import { CreateProfileContainerDto, UpdateProfileContainerDto } from '../../application/profiles/profile.dto';
+import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 
 @ApiTags('profiles')
 @Controller('profiles')
