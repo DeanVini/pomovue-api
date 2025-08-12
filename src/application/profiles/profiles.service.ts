@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateProfileContainerDto, UpdateProfileContainerDto } from './dto/profile.dto';
-import { ProfileResponse } from './entities/profile.entity';
+import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { CreateProfileContainerDto, UpdateProfileContainerDto } from './profile.dto';
+import { ProfileResponse } from '../../domain/profiles/profile.entity';
 
 @Injectable()
 export class ProfilesService {
