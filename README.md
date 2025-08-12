@@ -45,6 +45,12 @@ JWT_SECRET=your-super-secret-jwt-key
 npm run start:dev
 ```
 
+### 5. Acesse a documentação da API
+A API possui documentação interativa Swagger disponível em:
+```
+http://localhost:3000/docs
+```
+
 ## 🚀 Deploy na Vercel
 
 ### 1. Conecte o repositório à Vercel
@@ -156,6 +162,9 @@ curl -X PATCH http://localhost:3000/tasks \
 - `npm run start:dev` - Executar em desenvolvimento
 - `npm run build` - Build para produção
 - `npm run vercel-build` - Build para Vercel
+- `npm run prisma:generate` - Gerar cliente Prisma
+- `npm run prisma:studio` - Interface visual do banco
+- `npm run prisma:seed` - Criar dados iniciais
 
 ## 📁 Estrutura do Projeto
 
@@ -165,6 +174,7 @@ src/
 ├── users/          # Módulo de usuários
 ├── tasks/          # Módulo de tarefas
 ├── profiles/       # Módulo de perfis
+├── prisma/         # Configuração do Prisma
 ├── supabase/       # Configuração do Supabase
 ├── app.module.ts   # Módulo principal
 └── main.ts         # Ponto de entrada
