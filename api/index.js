@@ -50,6 +50,11 @@ async function createNestApplication() {
 }
 
 module.exports = async (req, res) => {
-  const app = await createNestApplication();
-  return app.getHttpAdapter().getInstance()(req, res);
+  try {
+    const app = await createNestApplication();
+    return app.getHttpAdapter().getInstance()(req, res);
+  } catch (error) {
+    console.error('Error in serverless function:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
 };
