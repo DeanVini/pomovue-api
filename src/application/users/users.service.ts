@@ -41,11 +41,11 @@ export class UsersService {
       }
     });
 
-    return user;
+    return this.convertUser(user);
   }
 
   async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       select: {
         id: true,
         name: true,
@@ -56,6 +56,8 @@ export class UsersService {
         updatedAt: true,
       }
     });
+
+    return users.map(user => this.convertUser(user));
   }
 
   async findOne(id: number): Promise<User> {
@@ -76,13 +78,15 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    return user;
+    return this.convertUser(user);
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { username },
     });
+
+    return user ? this.convertUser(user) : null;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -101,7 +105,7 @@ export class UsersService {
         }
       });
 
-      return user;
+      return this.convertUser(user);
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -115,5 +119,13 @@ export class UsersService {
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+  }
+
+  // Helper method to convert Prisma bigint to number
+  private convertUser(user: any): User {
+    return {
+      ...user,
+      id: Number(user.id),
+    };
   }
 }

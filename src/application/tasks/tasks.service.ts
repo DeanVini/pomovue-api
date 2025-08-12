@@ -82,8 +82,8 @@ export class TasksService {
   // Helper method to convert Prisma model to API response
   private toTaskResponse(task: any): TaskResponse {
     return {
-      id: task.id,
-      user_id: task.userId,
+      id: Number(task.id),
+      user_id: Number(task.userId),
       taskStored: task.taskStored as any,
       created_at: task.createdAt.toISOString(),
       updated_at: task.updatedAt.toISOString(),

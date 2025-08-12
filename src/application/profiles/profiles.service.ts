@@ -105,8 +105,8 @@ export class ProfilesService {
   // Helper method to convert Prisma model to API response
   private toProfileResponse(profile: any): ProfileResponse {
     return {
-      id: profile.id,
-      user_id: profile.userId,
+      id: Number(profile.id),
+      user_id: Number(profile.userId),
       lastProfile: profile.lastProfile,
       profileStored: profile.profileStored as any,
       created_at: profile.createdAt.toISOString(),
