@@ -1,79 +1,36 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import * as express from 'express';
+import { ValidationPipe } from '@nestjs/common';
 
-let cachedApp;
-
-async function createApp() {
-  if (cachedApp) {
-    return cachedApp;
-  }
-
-  const expressApp = express();
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL || '*',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
 
-  // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Pomodoro API')
-    .setDescription('API REST para aplicação Pomodoro com NestJS, Prisma e Supabase')
+    .setTitle('Pomovue API')
+    .setDescription('API for Pomodoro application with tasks and profiles')
     .setVersion('1.0')
-    .addTag('auth', 'Autenticação e login')
-    .addTag('users', 'Gestão de usuários')
-    .addTag('tasks', 'Gestão de tarefas')
-    .addTag('profiles', 'Perfis de Pomodoro')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-    customSiteTitle: 'Pomodoro API - Documentation'
-  });
+  SwaggerModule.setup('docs', app, document);
 
-  await app.init();
-  cachedApp = expressApp;
-  return cachedApp;
-}
-
-// For Vercel serverless
-export default async (req, res) => {
-  const app = await createApp();
-  return app(req, res);
-};
-
-// For local development
-async function bootstrap() {
-  const app = await createApp();
   const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`🚀 Application is running on: http://localhost:${port}`);
-    console.log(`📚 Swagger docs available at: http://localhost:${port}/docs`);
-  });
+  await app.listen(port);
+
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
-// Only run bootstrap if not in serverless environment
-if (require.main === module) {
-  bootstrap();
-}
+bootstrap();
