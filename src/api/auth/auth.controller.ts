@@ -30,8 +30,7 @@ export class AuthController {
     }
   })
   @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  async login(@Body() loginDto: LoginDto) {
+  login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 }
