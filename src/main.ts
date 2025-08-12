@@ -33,7 +33,7 @@ async function bootstrap() {
       'JWT-auth',
     )
     .addServer(process.env.NODE_ENV === 'production'
-      ? 'https://api.pomovue.deanvinici.us'
+      ? 'https://nestjs-supabase-pomodoro.vercel.app'
       : 'http://localhost:3000',
       process.env.NODE_ENV === 'production' ? 'Production' : 'Development'
     )
@@ -44,14 +44,15 @@ async function bootstrap() {
     swaggerOptions: {
       persistAuthorization: true,
     },
+    customSiteTitle: 'Pomodoro API - Documentation'
   });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
 
+  console.log(`🚀 Application is running on: ${await app.getUrl()}`);
   if (process.env.NODE_ENV !== 'production') {
-    console.log(`🚀 Server running on http://localhost:${port}`);
-    console.log(`📚 Swagger docs available at http://localhost:${port}/docs`);
+    console.log(`📚 Swagger docs available at: ${await app.getUrl()}/docs`);
   }
 }
 bootstrap();
